@@ -1,0 +1,73 @@
+# Docker volumes and data
+osrm-data/
+
+# Downloaded OSM data
+*.osm.pbf
+*.osm.bz2
+*.osm
+
+# OSRM processed files
+*.osrm
+*.osrm.*
+*.hsgr
+*.names
+*.geometry
+*.icd
+*.info
+*.datasource_names
+*.edges
+*.nbg_nodes
+*.level
+*.partition
+*.cells
+
+# Configuration files with sensitive data
+.env
+.env.local
+.env.production
+
+# OSRM profiles
+osrm-profiles/*.lua
+!osrm-profiles/example.lua
+
+# Logs
+*.log
+logs/
+
+# Backup files
+*.backup
+
+# Temporary files
+*.tmp
+*.temp
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# IDE and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Docker compose override
+docker-compose.override.yml
+
+# Cache directories
+.cache/
+
+# Runtime files
+*.pid
+*.lock
+
+# Build artifacts
+build/
+dist/

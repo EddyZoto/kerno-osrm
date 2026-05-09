@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  osrm-backend:
+    image: osrm/osrm-backend:v5.27.1
+    container_name: kerno-osrm-backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - osrm-data:/data
+      - ./osrm-profiles:/opt/profiles
+    command: >
+      bash -c "
+      if [ ! -f /data/bolivia-latest.osrm ]; then
+        echo 'Descargando datos de Bolivia...';
+        wget -O /data/bolivia-latest.osm.pbf https://download.geofabrik.de/south-america/bolivia-latest.osm.pbf;
+        echo 'Procesando datos con perfil de conducción...';
+        osrm-extract -p /opt/car.lua /data/bolivia-latest.osm.pbf;
+        osrm-partition /data/bolivia-latest.osrm;
+        osrm-customize /data/bolivia-latest.osrm;
+        echo 'Datos procesados correctamente';
+      fi;
+      echo 'Iniciando servidor OSRM...';
+      osrm-routed --algorithm mld /data/bolivia-latest.osrm --max-table-size 8000 --max-matching-size 1000
+      "
+    restart: unless-stopped
+    networks:
+      - osrm-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 300s
+
+  osrm-frontend:
+    image: osrm/osrm-frontend:v0.2.0
+    container_name: kerno-osrm-frontend
+    ports:
+      - "9966:9966"
+    environment:
+      OSRM_BACKEND: "http://osrm-backend:5000"
+    depends_on:
+      - osrm-backend
+    restart: unless-stopped
+    networks:
+      - osrm-network
+
+volumes:
+  osrm-data:
+    driver: local
+
+networks:
+  osrm-network:
+    driver: bridge
