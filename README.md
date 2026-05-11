@@ -1,186 +1,151 @@
-# 🛣️ Kerno OSRM - Servicio de Enrutamiento
+# 🛣️ Kerno OSRM - Enrutamiento para Bolivia
 
-Servicio de cálculo de rutas y navegación basado en OpenStreetMap usando OSRM para Bolivia.
+Servicio simple de cálculo de rutas usando OpenStreetMap para Bolivia.
 
-## 📋 Descripción
+## 🚀 Instalación Automática
 
-Este servicio proporciona:
-- **Cálculo de rutas**: Rutas óptimas entre puntos
-- **Matriz de distancias**: Distancias y tiempos entre múltiples puntos
-- **Navegación turn-by-turn**: Instrucciones detalladas de navegación
-- **Isócronas**: Áreas alcanzables en un tiempo determinado
-- **Matching de GPS**: Ajuste de trazas GPS a la red vial
+### ⚠️ Antes de Empezar - Verificar Docker
 
-## 🚀 Instalación y Configuración
-
-### Prerrequisitos
-
-- Docker Desktop instalado
-- Al menos 4GB de RAM disponible
-- 20GB de espacio en disco libre
-- Conexión a internet estable
-
-### 1. Clonar y Configurar
+Si es tu primera vez, verifica que Docker esté correctamente instalado:
 
 ```bash
-# Navegar a la carpeta del proyecto
-cd kerno-osrm
-
-# Crear carpeta de perfiles personalizados
-mkdir osrm-profiles
+npm run check-docker
 ```
 
-### 2. Configuración de Perfiles (Opcional)
-
-Crear perfiles personalizados en `osrm-profiles/`:
-
-**Perfil para vehículos pesados** (`osrm-profiles/truck.lua`):
-```lua
--- Perfil para camiones y vehículos pesados
-api_version = 4
-
-Set = require('lib/set')
-Sequence = require('lib/sequence')
-Handlers = require("lib/way_handlers")
-find_access_tag = require("lib/access").find_access_tag
-
-function setup()
-  return {
-    properties = {
-      max_speed_for_map_matching = 120/3.6,
-      continue_straight_at_waypoint = true,
-      use_turn_restrictions = true,
-      max_turn_penalty = 300,
-      weight_name = 'duration',
-      weight_precision = 1
-    },
-    
-    default_mode = mode.driving,
-    default_speed = 50,
-    oneway_handling = true,
-    
-    -- Restricciones para camiones
-    truck_restrictions = {
-      height = 4.0,  -- metros
-      width = 2.5,   -- metros  
-      length = 12.0, -- metros
-      weight = 40000 -- kg
-    }
-  }
-end
-```
-
-### 3. Iniciar Servicios
-
+### Opción 1: Con NPM (Recomendado)
 ```bash
-# Iniciar todos los servicios
-docker-compose up -d
+# Instalar dependencias
+npm install
 
-# Ver logs de procesamiento (primera vez toma 15-30 minutos)
-docker-compose logs -f osrm-backend
+# Verificar Docker (opcional pero recomendado)
+npm run check-docker
+
+# Instalar y iniciar OSRM (detecta automáticamente Windows/Linux/Mac)
+npm run install-osrm
 ```
 
-### 4. Verificar Instalación
+### Opción 2: Scripts Directos
 
+**Windows:**
 ```bash
-# Verificar que los servicios estén corriendo
+scripts\windows\start-osrm.bat
+```
+
+**Linux/Mac:**
+```bash
+chmod +x scripts/linux/*.sh
+scripts/linux/start-osrm.sh
+```
+
+**⏱️ Primera vez:** La descarga y procesamiento de datos de Bolivia toma aproximadamente 10-15 minutos.
+
+## 📋 Comandos Disponibles
+
+### Con NPM (Multiplataforma)
+```bash
+npm run check-docker           # Verificar que Docker esté funcionando
+npm run install-osrm           # Instalar e iniciar por primera vez
+npm run check-import           # Verificar progreso de procesamiento
+npm start                      # Iniciar servicio
+npm stop                       # Detener servicio
+npm restart                    # Reiniciar servicio
+npm run logs                   # Ver logs en tiempo real
+npm test                       # Probar el servicio
+npm run status                 # Ver estado de contenedores
+```
+
+### Scripts Directos
+
+**Windows (.bat):**
+- `scripts\windows\start-osrm.bat` - Iniciar servicio
+- `scripts\windows\stop-osrm.bat` - Detener servicio  
+- `scripts\windows\restart-osrm.bat` - Reiniciar servicio
+- `scripts\windows\logs-osrm.bat` - Ver logs
+- `scripts\windows\test-osrm.bat` - Probar servicio
+
+**Linux/Mac (.sh):**
+- `scripts/linux/start-osrm.sh` - Iniciar servicio
+- `scripts/linux/stop-osrm.sh` - Detener servicio  
+- `scripts/linux/restart-osrm.sh` - Reiniciar servicio
+- `scripts/linux/logs-osrm.sh` - Ver logs
+- `scripts/linux/test-osrm.sh` - Probar servicio
+
+## ✅ Verificar Instalación
+
+### 1. Verificar que el servicio esté corriendo
+```bash
+npm run status
+# o
 docker-compose ps
-
-# Probar el servicio de rutas
-curl "http://localhost:5000/route/v1/driving/-68.1193,-16.4897;-68.1150,-16.5000?overview=false"
-
-# Acceder a la interfaz web
-# Abrir navegador en: http://localhost:9966
 ```
 
-## 🔧 Scripts de Administración
-
-### Iniciar Servicios
+### 2. Verificar progreso de procesamiento (primera vez)
 ```bash
-# Windows
-start-osrm.bat
-
-# Linux/Mac
-./start-osrm.sh
+npm run check-import
 ```
 
-### Detener Servicios
+### 3. Probar el servicio (cuando esté listo)
 ```bash
-# Windows
-stop-osrm.bat
-
-# Linux/Mac
-./stop-osrm.sh
+npm test
 ```
 
-### Reiniciar Servicios
+### 4. Probar en el navegador
+Abrir: http://localhost:5003
+
+### 5. Ejemplos de API
 ```bash
-# Windows
-restart-osrm.bat
+# Calcular ruta entre dos puntos
+http://localhost:5003/route/v1/driving/-68.1340,-16.4955;-68.0850,-16.5400
 
-# Linux/Mac
-./restart-osrm.sh
+# Matriz de distancias
+http://localhost:5003/table/v1/driving/-68.1340,-16.4955;-68.0850,-16.5400;-68.1193,-16.4897
+
+# Punto más cercano
+http://localhost:5003/nearest/v1/driving/-68.1340,-16.4955
 ```
 
-### Ver Logs
+## ⏱️ Tiempo de Procesamiento
+
+**Primera vez:** El procesamiento de datos de Bolivia toma aproximadamente **10-15 minutos** dependiendo de tu hardware:
+- **Descarga:** ~2 minutos (162MB)
+- **Extracción:** ~3-5 minutos
+- **Partición:** ~2-3 minutos
+- **Personalización:** ~3-5 minutos
+- **Total:** ~10-15 minutos
+
+**Siguientes veces:** El servicio inicia en ~30 segundos (datos ya procesados)
+
+## 📡 Uso de la API
+
+### Calcular Rutas
 ```bash
-# Windows
-logs-osrm.bat
+# Ruta básica
+curl "http://localhost:5003/route/v1/driving/-68.1340,-16.4955;-68.0850,-16.5400"
 
-# Linux/Mac
-./logs-osrm.sh
+# Ruta con geometría completa
+curl "http://localhost:5003/route/v1/driving/-68.1340,-16.4955;-68.0850,-16.5400?overview=full&geometries=geojson"
+
+# Ruta con instrucciones paso a paso
+curl "http://localhost:5003/route/v1/driving/-68.1340,-16.4955;-68.0850,-16.5400?steps=true"
 ```
 
-## 📡 API Endpoints
-
-### 1. Cálculo de Rutas
-```http
-GET http://localhost:5000/route/v1/{profile}/{coordinates}
-```
-
-**Parámetros:**
-- `profile`: driving, walking, cycling
-- `coordinates`: lon1,lat1;lon2,lat2;...
-- `overview`: full, simplified, false
-- `geometries`: geojson, polyline, polyline6
-- `steps`: true/false (instrucciones detalladas)
-
-**Ejemplo:**
+### Matriz de Distancias
 ```bash
-# Ruta de Plaza Murillo a Zona Sur La Paz
-curl "http://localhost:5000/route/v1/driving/-68.1340,-16.4955;-68.0850,-16.5400?overview=full&geometries=geojson&steps=true"
+# Distancias entre múltiples puntos
+curl "http://localhost:5003/table/v1/driving/-68.1340,-16.4955;-68.0850,-16.5400;-68.1193,-16.4897"
 ```
 
-**Respuesta:**
+### Respuesta de ejemplo:
 ```json
 {
   "code": "Ok",
   "routes": [
     {
-      "geometry": {
-        "coordinates": [[-68.134, -16.4955], [-68.133, -16.496], ...],
-        "type": "LineString"
-      },
+      "geometry": "...",
       "legs": [
         {
-          "steps": [
-            {
-              "geometry": {...},
-              "maneuver": {
-                "bearing_after": 180,
-                "bearing_before": 0,
-                "location": [-68.134, -16.4955],
-                "type": "depart"
-              },
-              "mode": "driving",
-              "driving_side": "right",
-              "name": "Calle Comercio",
-              "intersections": [...],
-              "duration": 45.2,
-              "distance": 234.5
-            }
-          ],
-          "summary": "Calle Comercio, Avenida Arce",
+          "steps": [],
+          "summary": "",
           "weight": 892.1,
           "duration": 892.1,
           "distance": 4521.3
@@ -191,277 +156,97 @@ curl "http://localhost:5000/route/v1/driving/-68.1340,-16.4955;-68.0850,-16.5400
       "duration": 892.1,
       "distance": 4521.3
     }
-  ],
-  "waypoints": [
-    {
-      "hint": "...",
-      "distance": 12.3,
-      "name": "Plaza Murillo",
-      "location": [-68.134, -16.4955]
-    }
   ]
 }
 ```
 
-### 2. Matriz de Distancias
-```http
-GET http://localhost:5000/table/v1/{profile}/{coordinates}
-```
+## 🔧 Requisitos del Sistema
 
-**Ejemplo:**
-```bash
-# Matriz entre 3 puntos en La Paz
-curl "http://localhost:5000/table/v1/driving/-68.1340,-16.4955;-68.0850,-16.5400;-68.1193,-16.4897"
-```
+- **Docker Desktop** instalado y corriendo
+- **Node.js** (para comandos npm)
+- **4GB RAM** mínimo disponible
+- **20GB espacio** en disco libre
+- **Conexión a internet** (para descarga inicial)
 
-### 3. Navegación Detallada
-```http
-GET http://localhost:5000/route/v1/driving/{coordinates}?steps=true&voice_instructions=true
-```
+## 📊 Información Técnica
 
-### 4. Matching de GPS
-```http
-POST http://localhost:5000/match/v1/driving
-Content-Type: application/json
-
-{
-  "coordinates": [
-    [-68.1340, -16.4955],
-    [-68.1335, -16.4960],
-    [-68.1330, -16.4965]
-  ],
-  "timestamps": [1234567890, 1234567895, 1234567900]
-}
-```
-
-### 5. Isócronas (Nearest)
-```http
-GET http://localhost:5000/nearest/v1/driving/{coordinate}?number={n}
-```
-
-## 🗺️ Ejemplos de Uso
-
-### Rutas Urbanas en La Paz
-```bash
-# Plaza Murillo a Teleférico Rojo
-curl "http://localhost:5000/route/v1/driving/-68.1340,-16.4955;-68.1370,-16.4980?steps=true"
-
-# Sopocachi a Zona Sur
-curl "http://localhost:5000/route/v1/driving/-68.1193,-16.4897;-68.0850,-16.5400?overview=full"
-
-# El Alto a Centro La Paz
-curl "http://localhost:5000/route/v1/driving/-68.1500,-16.5100;-68.1340,-16.4955?alternatives=true"
-```
-
-### Matriz de Distancias para Logística
-```bash
-# Calcular distancias entre múltiples puntos de entrega
-curl "http://localhost:5000/table/v1/driving/-68.1340,-16.4955;-68.0850,-16.5400;-68.1193,-16.4897;-68.1500,-16.5100"
-```
-
-### Optimización de Rutas
-```bash
-# Ruta optimizada visitando múltiples puntos
-curl "http://localhost:5000/trip/v1/driving/-68.1340,-16.4955;-68.0850,-16.5400;-68.1193,-16.4897?roundtrip=true"
-```
-
-## ⚙️ Configuración Avanzada
-
-### Perfiles de Transporte
-
-**Automóvil (por defecto)**:
-- Velocidad máxima: 120 km/h
-- Evita: peatonales, ciclovías
-- Permite: autopistas, calles
-
-**Camiones**:
-- Restricciones de peso y altura
-- Evita: calles residenciales estrechas
-- Considera: restricciones de horario
-
-**Motocicletas**:
-- Permite: carriles de motocicletas
-- Velocidad adaptada
-- Acceso a calles estrechas
-
-### Variables de Entorno
-
-| Variable | Descripción | Valor por Defecto |
-|----------|-------------|-------------------|
-| `OSRM_ALGORITHM` | Algoritmo de enrutamiento | mld |
-| `OSRM_MAX_TABLE_SIZE` | Tamaño máximo de matriz | 8000 |
-| `OSRM_THREADS` | Hilos de procesamiento | 4 |
-
-### Optimización de Rendimiento
-
-```yaml
-# En docker-compose.yml
-services:
-  osrm-backend:
-    command: >
-      osrm-routed --algorithm mld /data/bolivia-latest.osrm 
-      --max-table-size 10000 
-      --max-matching-size 2000
-      --max-viaroute-size 1000
-      --max-trip-size 100
-    deploy:
-      resources:
-        limits:
-          memory: 4G
-        reservations:
-          memory: 2G
-```
-
-## 🔄 Actualizaciones
-
-### Actualizar Datos de OpenStreetMap
-```bash
-# Descargar nuevos datos
-docker exec kerno-osrm-backend wget -O /data/bolivia-latest-new.osm.pbf https://download.geofabrik.de/south-america/bolivia-latest.osm.pbf
-
-# Procesar nuevos datos
-docker exec kerno-osrm-backend osrm-extract -p /opt/car.lua /data/bolivia-latest-new.osm.pbf
-docker exec kerno-osrm-backend osrm-partition /data/bolivia-latest-new.osrm
-docker exec kerno-osrm-backend osrm-customize /data/bolivia-latest-new.osrm
-
-# Reiniciar con nuevos datos
-docker-compose restart osrm-backend
-```
-
-### Actualización Automática
-Script para actualización semanal:
-```bash
-#!/bin/bash
-# update-osrm-data.sh
-cd /path/to/kerno-osrm
-docker-compose down
-docker volume rm kerno-osrm_osrm-data
-docker-compose up -d
-```
+- **Puerto:** 5003
+- **Datos:** Solo Bolivia (descarga automática)
+- **Formato:** JSON
+- **Algoritmo:** MLD (Multi-Level Dijkstra)
+- **Archivo de datos:** `bolivia-latest.osm.pbf` (excluido de Git)
 
 ## 🐛 Solución de Problemas
 
-### Problema: Servicio no inicia
+### Problema: Test devuelve arrays vacíos [] o sin datos JSON
+
+**Causa:** OSRM aún está procesando los datos de Bolivia.
+
+**Solución:**
 ```bash
-# Verificar logs
-docker-compose logs osrm-backend
+# 1. Verificar el progreso de procesamiento
+npm run check-import
 
-# Verificar espacio en disco
-df -h
+# 2. Ver logs en tiempo real para monitorear
+npm run logs
 
-# Limpiar datos corruptos
-docker volume rm kerno-osrm_osrm-data
-docker-compose up -d
+# 3. Esperar a que termine el procesamiento (10-15 minutos primera vez)
+# 4. Probar nuevamente cuando esté listo
+npm test
 ```
 
-### Problema: Rutas no encontradas
+**Indicadores de que está listo:**
+- Los logs muestran "Iniciando servidor OSRM en puerto 5000"
+- `npm run check-import` muestra "✅ OSRM está listo"
+- Las consultas devuelven datos JSON con rutas reales
+
+### Problema: Error "cannot find the file specified" o Docker no responde
+
+**Causa:** Docker Desktop no está instalado o no está corriendo.
+
+**Solución:**
 ```bash
-# Verificar coordenadas (deben estar en Bolivia)
-curl "http://localhost:5000/nearest/v1/driving/-68.1340,-16.4955?number=1"
+# 1. Verificar Docker
+npm run check-docker
 
-# Verificar que los datos estén cargados
-docker exec kerno-osrm-backend ls -la /data/
+# 2. Si Docker no está instalado:
+# - Descarga Docker Desktop desde: https://www.docker.com/products/docker-desktop
+# - Instala y reinicia tu computadora
+# - Abre Docker Desktop desde el menú de inicio
+
+# 3. Si Docker está instalado pero no corriendo:
+# - Abre Docker Desktop
+# - Espera a que aparezca "Docker Desktop is running"
+# - Vuelve a intentar: npm run install-osrm
 ```
 
-### Problema: Rendimiento lento
+### Problema: Servicio no responde
 ```bash
-# Verificar uso de memoria
-docker stats kerno-osrm-backend
+# Ver logs detallados
+npm run logs
 
-# Aumentar recursos disponibles
-# Editar docker-compose.yml y agregar:
-deploy:
-  resources:
-    limits:
-      memory: 8G
+# Verificar estado de contenedores
+npm run status
+
+# Reiniciar servicio
+npm restart
 ```
 
-## 📊 Monitoreo
-
-### Verificar Estado del Servicio
+### Problema: Error de permisos (Linux)
 ```bash
-# Health check
-curl http://localhost:5000/health
+# Agregar usuario al grupo docker
+sudo usermod -aG docker $USER
 
-# Estado de contenedores
-docker-compose ps
+# Reiniciar sesión o ejecutar
+newgrp docker
 
-# Métricas de uso
-docker stats --no-stream
+# Verificar que funciona
+npm run check-docker
 ```
 
-### Estadísticas de Uso
-```bash
-# Información del dataset
-curl http://localhost:5000/route/v1/driving/-68.1340,-16.4955;-68.1340,-16.4955
+## ❗ Importante
 
-# Verificar memoria utilizada
-docker exec kerno-osrm-backend free -h
-```
-
-## 🌐 Interfaz Web
-
-La interfaz web está disponible en `http://localhost:9966` y proporciona:
-
-- **Mapa interactivo** de Bolivia
-- **Calculadora de rutas** visual
-- **Perfiles de transporte** seleccionables
-- **Exportación** de rutas en diferentes formatos
-- **Debugging** de requests API
-
-### Personalizar Interfaz Web
-```bash
-# Crear configuración personalizada
-mkdir osrm-frontend-config
-
-# Archivo de configuración
-cat > osrm-frontend-config/config.js << EOF
-var OSRM_BACKEND = 'http://localhost:5000';
-var OSRM_CENTER = [-68.1340, -16.4955]; // La Paz
-var OSRM_ZOOM = 12;
-var OSRM_LANGUAGE = 'es';
-EOF
-```
-
-## 🔐 Seguridad
-
-### Configuración de Producción
-```yaml
-# Exponer solo en localhost
-ports:
-  - "127.0.0.1:5000:5000"
-  - "127.0.0.1:9966:9966"
-
-# Agregar autenticación (nginx reverse proxy)
-# nginx.conf
-location /osrm/ {
-    auth_basic "OSRM Access";
-    auth_basic_user_file /etc/nginx/.htpasswd;
-    proxy_pass http://localhost:5000/;
-}
-```
-
-### Rate Limiting
-```bash
-# Usar nginx para rate limiting
-limit_req_zone $binary_remote_addr zone=osrm:10m rate=10r/s;
-
-location /osrm/ {
-    limit_req zone=osrm burst=20 nodelay;
-    proxy_pass http://localhost:5000/;
-}
-```
-
-## 📞 Soporte
-
-Para problemas o consultas:
-- Revisar logs: `docker-compose logs`
-- Documentación oficial: [OSRM Documentation](http://project-osrm.org/docs/)
-- Issues del proyecto: Crear issue en el repositorio
-
-## 🏷️ Versiones
-
-- **OSRM Backend**: 5.27.1
-- **OSRM Frontend**: 0.2.0
-- **Datos**: Bolivia (OpenStreetMap)
-- **Última actualización**: Mayo 2026
+- El archivo de datos de Bolivia (*.osm.pbf) se descarga automáticamente
+- Este archivo NO se sube a GitHub (está en .gitignore)
+- El primer procesamiento puede tomar tiempo dependiendo de tu conexión y hardware
+- Una vez procesado, el servicio inicia rápidamente

@@ -1,6 +1,10 @@
 # Docker volumes and data
 osrm-data/
 
+# Node.js
+node_modules/
+package-lock.json
+
 # Downloaded OSM data
 *.osm.pbf
 *.osm.bz2

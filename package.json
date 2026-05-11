@@ -1,0 +1,22 @@
+{
+  "name": "kerno-osrm",
+  "version": "1.0.0",
+  "description": "Servicio de enrutamiento OSRM para Bolivia",
+  "scripts": {
+    "check-docker": "node scripts/check-docker.js",
+    "check-import": "node scripts/check-import.js",
+    "install-osrm": "node scripts/install.js",
+    "start": "node scripts/start.js",
+    "stop": "node scripts/stop.js",
+    "restart": "node scripts/restart.js",
+    "logs": "node scripts/logs.js",
+    "test": "node scripts/test.js",
+    "status": "docker-compose ps"
+  },
+  "keywords": ["osrm", "routing", "bolivia", "openstreetmap"],
+  "author": "Kerno Team",
+  "license": "MIT",
+  "devDependencies": {
+    "cross-spawn": "^7.0.3"
+  }
+}
