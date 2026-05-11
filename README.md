@@ -2,6 +2,30 @@
 
 Servicio simple de cálculo de rutas usando OpenStreetMap para Bolivia.
 
+## 🚀 Inicio Rápido
+
+```bash
+# 1. Instalar dependencias
+npm install
+
+# 2. Instalar e iniciar OSRM
+npm run install-osrm
+
+# 3. Esperar 15-20 minutos (primera vez)
+# Monitorear progreso: npm run logs
+
+# 4. Probar el servicio
+npm test
+```
+
+**⚠️ Si hay problemas durante la instalación:**
+```bash
+npm run clean    # Limpiar y restablecer
+npm start        # Iniciar de nuevo
+```
+
+---
+
 ## 🚀 Instalación Automática
 
 ### ⚠️ Antes de Empezar - Verificar Docker
@@ -52,6 +76,7 @@ npm restart                    # Reiniciar servicio
 npm run logs                   # Ver logs en tiempo real
 npm test                       # Probar el servicio
 npm run status                 # Ver estado de contenedores
+npm run clean                  # Limpiar y restablecer (si hay problemas)
 ```
 
 ### Scripts Directos
@@ -106,12 +131,13 @@ http://localhost:5003/nearest/v1/driving/-68.1340,-16.4955
 
 ## ⏱️ Tiempo de Procesamiento
 
-**Primera vez:** El procesamiento de datos de Bolivia toma aproximadamente **10-15 minutos** dependiendo de tu hardware:
-- **Descarga:** ~2 minutos (162MB)
+**Primera vez:** El procesamiento de datos de Bolivia toma aproximadamente **15-20 minutos** dependiendo de tu hardware:
+- **Instalación de herramientas:** ~1-2 minutos (wget)
+- **Descarga:** ~2-3 minutos (162MB)
 - **Extracción:** ~3-5 minutos
 - **Partición:** ~2-3 minutos
 - **Personalización:** ~3-5 minutos
-- **Total:** ~10-15 minutos
+- **Total:** ~15-20 minutos
 
 **Siguientes veces:** El servicio inicia en ~30 segundos (datos ya procesados)
 
@@ -178,6 +204,36 @@ curl "http://localhost:5003/table/v1/driving/-68.1340,-16.4955;-68.0850,-16.5400
 
 ## 🐛 Solución de Problemas
 
+### ⚠️ Problema Común: Errores de Descarga o Archivos Faltantes
+
+**Síntomas:**
+- Logs muestran "wget: command not found"
+- Logs muestran "Missing/Broken File"
+- Logs muestran "Required files are missing"
+- El servicio se reinicia constantemente
+
+**✅ Solución Rápida (UN SOLO COMANDO):**
+```bash
+npm run clean
+```
+
+Este comando:
+1. Detiene el servicio
+2. Elimina contenedores y datos corruptos
+3. Descarga imagen fresca de OSRM
+4. Te deja listo para ejecutar `npm start` de nuevo
+
+**Después de limpiar:**
+```bash
+# Iniciar de nuevo
+npm start
+
+# Monitorear el progreso
+npm run logs
+```
+
+---
+
 ### Problema: Test devuelve arrays vacíos [] o sin datos JSON
 
 **Causa:** OSRM aún está procesando los datos de Bolivia.
@@ -196,9 +252,11 @@ npm test
 ```
 
 **Indicadores de que está listo:**
-- Los logs muestran "Iniciando servidor OSRM en puerto 5000"
+- Los logs muestran "Iniciando servidor OSRM en puerto 5000" (sin errores después)
 - `npm run check-import` muestra "✅ OSRM está listo"
 - Las consultas devuelven datos JSON con rutas reales
+
+---
 
 ### Problema: Error "cannot find the file specified" o Docker no responde
 

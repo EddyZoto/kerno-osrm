@@ -4,7 +4,7 @@ echo  KERNO OSRM - INICIANDO SERVICIO
 echo ========================================
 echo.
 
-echo [1/2] Verificando Docker Desktop...
+echo [1/3] Verificando Docker Desktop...
 docker --version >nul 2>&1
 if errorlevel 1 (
     echo ❌ ERROR: Docker no esta instalado o no esta en el PATH
@@ -38,7 +38,27 @@ if errorlevel 1 (
 echo ✅ Docker Desktop esta corriendo
 echo.
 
-echo [2/2] Iniciando servicios de OSRM...
+echo [2/3] Descargando imagen de OSRM...
+echo Esto puede tomar unos minutos la primera vez...
+docker pull osrm/osrm-backend:latest
+
+if errorlevel 1 (
+    echo ❌ ERROR: No se pudo descargar la imagen de OSRM
+    echo.
+    echo POSIBLES SOLUCIONES:
+    echo 1. Verifica tu conexion a internet
+    echo 2. Verifica que Docker Desktop este corriendo
+    echo 3. Intenta reiniciar Docker Desktop
+    echo 4. Verifica que no tengas firewall bloqueando Docker
+    echo.
+    pause
+    exit /b 1
+)
+
+echo ✅ Imagen de OSRM descargada correctamente
+echo.
+
+echo [3/3] Iniciando servicios de OSRM...
 echo Puerto: 5003
 echo Datos: Bolivia (descarga automatica)
 echo.
@@ -55,6 +75,7 @@ if errorlevel 1 (
     echo 1. Verifica que Docker Desktop este corriendo
     echo 2. Revisa los logs con: docker-compose logs
     echo 3. Intenta reiniciar Docker Desktop
+    echo 4. Verifica que el puerto 5003 no este ocupado
     echo.
     pause
     exit /b 1

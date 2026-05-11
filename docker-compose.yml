@@ -1,14 +1,17 @@
 services:
   osrm-backend:
-    image: osrm/osrm-backend:v5.27.1
+    image: osrm/osrm-backend:latest
     container_name: kerno-osrm-backend
     ports:
       - "5003:5000"
     volumes:
       - osrm-data:/data
+    entrypoint: /bin/bash
     command: >
-      bash -c "
+      -c "
       if [ ! -f /data/bolivia-latest.osrm ]; then
+        echo 'Instalando herramientas de descarga...';
+        apt-get update && apt-get install -y wget;
         echo 'Descargando datos de Bolivia para enrutamiento...';
         wget -O /data/bolivia-latest.osm.pbf https://download.geofabrik.de/south-america/bolivia-latest.osm.pbf;
         echo 'Procesando datos con perfil de conducción...';

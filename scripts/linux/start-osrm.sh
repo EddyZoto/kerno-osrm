@@ -5,7 +5,7 @@ echo "  KERNO OSRM - INICIANDO SERVICIO"
 echo "========================================"
 echo
 
-echo "[1/2] Verificando Docker..."
+echo "[1/3] Verificando Docker..."
 if ! command -v docker &> /dev/null; then
     echo "❌ ERROR: Docker no está instalado"
     echo
@@ -35,7 +35,26 @@ fi
 echo "✅ Docker está corriendo"
 echo
 
-echo "[2/2] Iniciando servicios de OSRM..."
+echo "[2/3] Descargando imagen de OSRM..."
+echo "Esto puede tomar unos minutos la primera vez..."
+docker pull osrm/osrm-backend:latest
+
+if [ $? -ne 0 ]; then
+    echo "❌ ERROR: No se pudo descargar la imagen de OSRM"
+    echo
+    echo "POSIBLES SOLUCIONES:"
+    echo "1. Verifica tu conexión a internet"
+    echo "2. Verifica que Docker esté corriendo"
+    echo "3. Intenta reiniciar Docker"
+    echo "4. Verifica que no tengas firewall bloqueando Docker"
+    echo
+    exit 1
+fi
+
+echo "✅ Imagen de OSRM descargada correctamente"
+echo
+
+echo "[3/3] Iniciando servicios de OSRM..."
 echo "Puerto: 5003"
 echo "Datos: Bolivia (descarga automática)"
 echo
@@ -52,6 +71,7 @@ if [ $? -ne 0 ]; then
     echo "1. Verifica que Docker esté corriendo"
     echo "2. Revisa los logs con: docker-compose logs"
     echo "3. Intenta reiniciar Docker"
+    echo "4. Verifica que el puerto 5003 no esté ocupado"
     echo
     exit 1
 fi

@@ -11,7 +11,8 @@
     "restart": "node scripts/restart.js",
     "logs": "node scripts/logs.js",
     "test": "node scripts/test.js",
-    "status": "docker-compose ps"
+    "status": "docker-compose ps",
+    "clean": "node scripts/clean.js"
   },
   "keywords": ["osrm", "routing", "bolivia", "openstreetmap"],
   "author": "Kerno Team",
