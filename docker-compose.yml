@@ -5,25 +5,18 @@ services:
     ports:
       - "5003:5000"
     volumes:
-      - osrm-data:/data
+      - ./data:/data
     entrypoint: /bin/bash
     command: >
       -c "
       if [ ! -f /data/bolivia-latest.osrm ]; then
-        echo 'Instalando herramientas de descarga...';
-        apt-get update && apt-get install -y wget;
-        echo 'Descargando datos de Bolivia para enrutamiento...';
-        wget -O /data/bolivia-latest.osm.pbf https://download.geofabrik.de/south-america/bolivia-latest.osm.pbf;
-        echo 'Procesando datos con perfil de conducción...';
-        osrm-extract -p /opt/car.lua /data/bolivia-latest.osm.pbf;
-        osrm-partition /data/bolivia-latest.osrm;
-        osrm-customize /data/bolivia-latest.osrm;
-        echo 'Datos procesados correctamente';
+        echo 'Procesando datos de Bolivia...';
+        osrm-extract -p /opt/car.lua /data/bolivia-latest.osm.pbf &&
+        osrm-partition /data/bolivia-latest.osrm &&
+        osrm-customize /data/bolivia-latest.osrm &&
+        echo 'Procesamiento completado.';
       fi;
       echo 'Iniciando servidor OSRM en puerto 5000...';
       osrm-routed --algorithm mld /data/bolivia-latest.osrm --max-table-size 8000
       "
     restart: unless-stopped
-
-volumes:
-  osrm-data:

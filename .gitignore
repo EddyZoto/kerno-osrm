@@ -1,5 +1,6 @@
 # Docker volumes and data
 osrm-data/
+data/
 
 # Node.js
 node_modules/
