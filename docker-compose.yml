@@ -6,12 +6,14 @@ services:
       - "5003:5000"
     volumes:
       - ./data:/data
+      # Monta el perfil personalizado de Bolivia dentro del contenedor
+      - ./options/bolivia.lua:/opt/bolivia.lua
     entrypoint: /bin/bash
     command: >
       -c "
       if [ ! -f /data/bolivia-latest.osrm ]; then
-        echo 'Procesando datos de Bolivia...';
-        osrm-extract -p /opt/car.lua /data/bolivia-latest.osm.pbf &&
+        echo 'Procesando datos de Bolivia con perfil personalizado...';
+        osrm-extract -p /opt/bolivia.lua /data/bolivia-latest.osm.pbf &&
         osrm-partition /data/bolivia-latest.osrm &&
         osrm-customize /data/bolivia-latest.osrm &&
         echo 'Procesamiento completado.';
